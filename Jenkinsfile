@@ -20,15 +20,15 @@ node('docker') {
     		def uploadSpec = """{
     		"files": [
     		{
-     		"pattern": "target/Esafe-0.0.1.war",
-     		"target": "Esafe-Project/${BUILD_NUMBER}/",
+     		"pattern": "target/Test-0.0.1.war",
+     		"target": "Multibranch-pipeline/${BUILD_NUMBER}/",
 	 	"props": "Integration-Tested=Yes;Performance-Tested=No"
    		}
            	]
 		}"""
 		server.upload(uploadSpec)
 	}
-	stash includes: 'target/Esafe-0.0.1.war,src/pt/Hello_World_Test_Plan.jmx', name: 'binary'
+	stash includes: 'target/Test-0.0.1.war,src/pt/Hello_World_Test_Plan.jmx', name: 'binary'
 }
 node('docker_pt') {
 	stage ('Start Tomcat'){
@@ -37,7 +37,7 @@ node('docker_pt') {
 	}
 	stage ('Deploy '){
     		unstash 'binary'
-    		sh 'cp target/Esafe-0.0.1.war /home/jenkins/tomcat/webapps/';
+    		sh 'cp target/Test-0.0.1.war /home/jenkins/tomcat/webapps/';
 	}
 	stage ('Performance Testing'){
     		sh '''cd /opt/jmeter/bin/
@@ -46,7 +46,7 @@ node('docker_pt') {
 	}
 	stage ('Promote build in Artifactory'){
     		withCredentials([usernameColonPassword(credentialsId: 'artifactory-account', variable: 'credentials')]) {
-    			sh 'curl -u${credentials} -X PUT "http://192.168.0.203:8081/artifactory/api/storage/Esafe-Project/${BUILD_NUMBER}/Esafe-0.0.1.war?properties=Performance-Tested=Yes"';
+    			sh 'curl -u${credentials} -X PUT "http://192.168.0.203:8081/artifactory/api/storage/Multibranch-pipeline/${BUILD_NUMBER}/Test-0.0.1.war?properties=Performance-Tested=Yes"';
 		}
 	}
   }
@@ -56,8 +56,8 @@ node {
              def downloadSpec = """{
              "files": [
               {
-              "pattern": "Esafe-Project/$BUILD_NUMBER/*.war",
-              "target": "/opt/ansible/",
+              "pattern": "Multibranch-pipeline/$BUILD_NUMBER/*.war",
+              "target": "/opt/multibranchyaml/",
               "props": "Performance-Tested=Yes;Integration-Tested=Yes",
               "flat": "true"
                }
@@ -66,7 +66,7 @@ node {
                server.download(downloadSpec)
                }
 	stage('Run Playbook'){
-		      sh 'ansible-playbook /opt/ansible/copywarfile.yml'
+		      sh 'ansible-playbook /opt/multibranchyaml/copywarfile.yml'
 	}
 	stage('Email Notification'){
                mail bcc: '', body: 'Welcome to jenkins notification alert', 
