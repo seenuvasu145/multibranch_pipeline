@@ -1,3 +1,12 @@
+properties([[$class: 'JiraProjectProperty'], parameters([choice(choices: 'develop\nstaging\nmaster', description: 'Select Branch to Build', name: 'Branch')])])
+
+node{
+    stage('Scm Checkout'){
+        echo "Pulling changes from the branch ${params.Branch}"
+        git url: 'https://github.com/seenuvasu145/multibranch_pipeline', Branch: "${params.Branch}"
+    }
+    
+}
 node('docker') {
 	stage('Poll') {
 		checkout scm
