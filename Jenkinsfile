@@ -5,7 +5,7 @@ node('docker') {
 	}
 	stage('Build & Unit test'){
 		sh 'mvn clean verify -DskipITs=true';
-      		junit '**/target/surefire-reports/TEST-*.xml'
+    		junit '**/target/surefire-reports/TEST-*.xml'
       		archiveArtifacts 'target/*.war'
    	}
 //	stage('Static Code Analysis'){
@@ -17,8 +17,8 @@ node('docker') {
 //    		archiveArtifacts 'target/*.war'
 //	}
 	stage ('Publish'){
-    		def server = Artifactory.server 'Default Artifactory Server'
-    		def uploadSpec = """{
+  		def server = Artifactory.server 'Default Artifactory Server'
+  		def uploadSpec = """{
     		"files": [
     		{
      		"pattern": "target/Test-0.0.1.war",
