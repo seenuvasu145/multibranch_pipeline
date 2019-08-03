@@ -1,4 +1,3 @@
-properties([[$class: 'JiraProjectProperty'], parameters([choice(choices: 'develop\nstaging\nmaster', description: 'Select Branch to Build', name: 'Branch')])])
 node('docker') {
 	stage('Poll') {
 		checkout scm
