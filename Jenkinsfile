@@ -1,16 +1,10 @@
-properties([[$class: 'JiraProjectProperty'], parameters([choice(choices: 'develop\nstaging\nmaster', description: 'Select Branch to Build', name: 'Branch')])])
+properties([[$class: 'JiraProjectProperty'], parameters([choice(choices: 'develop\nstaging\nmaster', description: 'Select Branch to Build', name: 'branch')])])
 
-node{
-    stage('Scm Checkout'){
-        echo "Pulling changes from the branch ${params.Branch}"
-        git url: 'https://github.com/seenuvasu145/multibranch_pipeline', Branch: "${params.Branch}"
-    }
-    
-}
 node('docker') {
-	stage('Poll') {
-		checkout scm
-	}
+	stage('Scm Checkout'){
+        echo "Pulling changes from the branch ${params.Branch}"
+        git url: 'https://github.com/seenuvasu145/multibranch_pipeline', branch: "${params.branch}"
+    }
 	stage('Build & Unit test'){
 		sh 'mvn clean verify -DskipITs=true';
       		junit '**/target/surefire-reports/TEST-*.xml'
